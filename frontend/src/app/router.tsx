@@ -10,9 +10,10 @@ import { PlannerPage } from '@/features/planner/pages/PlannerPage';
 import { FocusPage } from '@/features/focus/pages/FocusPage';
 import { ProgressPage } from '@/features/progress/pages/ProgressPage';
 import { SkillsPage } from '@/features/skills/pages/SkillsPage';
+import { LearningPage } from '@/features/learning/pages/LearningPage';
 import { FeaturePlaceholder } from '@/components/common/FeaturePlaceholder';
 import { 
-  Scale, BookOpen, Briefcase, FileText, Mic, Sparkles, Settings 
+  Scale, Briefcase, FileText, Mic, Sparkles, Settings 
 } from 'lucide-react';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -86,6 +87,10 @@ export const router = createBrowserRouter([
         element: <SkillsPage />,
       },
       {
+        path: 'learning',
+        element: <LearningPage />,
+      },
+      {
         path: 'decisions',
         element: (
           <FeaturePlaceholder
@@ -98,23 +103,6 @@ export const router = createBrowserRouter([
               'Transparent deterministic scoring algorithm',
               'Explainable trade-off analysis',
               'Long-term decision history and outcome evaluation',
-            ]}
-          />
-        ),
-      },
-      {
-        path: 'learning',
-        element: (
-          <FeaturePlaceholder
-            title="Skill Gap Scanner & Learning Roadmap"
-            milestone="Milestone 4"
-            description="Dynamic learning roadmaps generated from real job requirement gaps."
-            icon={BookOpen}
-            features={[
-              'Prioritized skill gap calculator',
-              'Curated learning resources & project challenges',
-              'One-click convert learning item to executable task',
-              'Evidence feedback upon milestone completion',
             ]}
           />
         ),

@@ -23,6 +23,11 @@ from app.schemas.skill import (
     SkillHistoryPoint, AssignTaskSkillsRequest
 )
 from app.schemas.evidence import EvidenceCreate, EvidenceResponse
+from app.schemas.learning import (
+    RoleResponse, RoleSkillRequirement, SkillGapItem, SkillGapReport,
+    LearningResourceResponse, LearningPathResponse, LearningPathItemResponse,
+    GenerateRoadmapRequest, ConvertLearningToTaskResponse
+)
 
 __all__ = [
     "Token", "TokenPayload", "RegisterRequest", "LoginRequest", "AuthUserResponse", "AuthResponse",
@@ -37,5 +42,8 @@ __all__ = [
     "ProductivitySnapshotResponse", "DailyMetricPoint", "ProductivityTrendResponse",
     "SkillCreate", "SkillResponse", "UserSkillResponse", "EvidenceItemResponse",
     "SkillHistoryPoint", "AssignTaskSkillsRequest",
-    "EvidenceCreate", "EvidenceResponse"
+    "EvidenceCreate", "EvidenceResponse",
+    "RoleResponse", "RoleSkillRequirement", "SkillGapItem", "SkillGapReport",
+    "LearningResourceResponse", "LearningPathResponse", "LearningPathItemResponse",
+    "GenerateRoadmapRequest", "ConvertLearningToTaskResponse"
 ]

@@ -6,6 +6,7 @@ from app.repositories.focus_repository import FocusRepository
 from app.repositories.productivity_repository import ProductivityRepository
 from app.repositories.skill_repository import SkillRepository
 from app.repositories.evidence_repository import EvidenceRepository
+from app.repositories.learning_repository import LearningRepository
 
 __all__ = [
     "UserRepository",
@@ -16,4 +17,5 @@ __all__ = [
     "ProductivityRepository",
     "SkillRepository",
     "EvidenceRepository",
+    "LearningRepository",
 ]

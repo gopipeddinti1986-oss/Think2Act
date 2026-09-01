@@ -6,9 +6,11 @@ from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
 from app.services.skill_service import SkillService
+from app.services.learning_service import LearningService
 from app.schemas.skill import (
     SkillCreate, SkillResponse, UserSkillResponse, AssignTaskSkillsRequest
 )
+from app.schemas.learning import SkillGapReport
 
 router = APIRouter()
 
@@ -36,6 +38,15 @@ async def get_my_skill_graph(
 ):
     service = SkillService(db)
     return await service.list_user_skills(current_user.id)
+
+@router.get("/gaps", response_model=SkillGapReport)
+async def get_skill_gaps(
+    role_id: Optional[UUID] = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    learning_service = LearningService(db)
+    return await learning_service.compute_skill_gaps(current_user.id, role_id)
 
 @router.get("/me/{skill_id}", response_model=UserSkillResponse)
 async def get_my_skill_detail(

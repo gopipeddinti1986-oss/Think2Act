@@ -6,6 +6,10 @@ from app.models.planner import PlannerEntry
 from app.models.focus import FocusSession
 from app.models.productivity import ProductivityMetric
 from app.models.skill import Skill, UserSkill, Evidence, SkillHistory, TaskSkill
+from app.models.learning import (
+    Role, RoleSkill, LearningResource, LearningResourceSkill,
+    LearningPath, LearningPathItem
+)
 
 __all__ = [
     "Base",
@@ -22,4 +26,10 @@ __all__ = [
     "Evidence",
     "SkillHistory",
     "TaskSkill",
+    "Role",
+    "RoleSkill",
+    "LearningResource",
+    "LearningResourceSkill",
+    "LearningPath",
+    "LearningPathItem",
 ]
