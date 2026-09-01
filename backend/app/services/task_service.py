@@ -3,11 +3,16 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.task_repository import TaskRepository
+from app.repositories.skill_repository import SkillRepository
+from app.repositories.evidence_repository import EvidenceRepository
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
 
 class TaskService:
     def __init__(self, db: AsyncSession):
+        self.db = db
         self.repo = TaskRepository(db)
+        self.skill_repo = SkillRepository(db)
+        self.evidence_repo = EvidenceRepository(db)
 
     async def list_tasks(
         self,
@@ -50,6 +55,12 @@ class TaskService:
         task = await self.repo.complete(task_id, user_id)
         if not task:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
+        
+        # Wire Milestone 3: Auto-generate evidence for associated skills
+        from app.services.skill_service import SkillService
+        skill_service = SkillService(self.db)
+        await skill_service.on_task_completed(user_id, task.id, task.title)
+
         return TaskResponse.model_validate(task)
 
     async def delete_task(self, task_id: UUID, user_id: UUID) -> dict:

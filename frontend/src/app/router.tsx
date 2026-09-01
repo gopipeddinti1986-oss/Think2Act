@@ -6,9 +6,13 @@ import { RegisterPage } from '@/features/auth/pages/RegisterPage';
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage';
 import { GoalsPage } from '@/features/goals/pages/GoalsPage';
 import { TasksPage } from '@/features/tasks/pages/TasksPage';
+import { PlannerPage } from '@/features/planner/pages/PlannerPage';
+import { FocusPage } from '@/features/focus/pages/FocusPage';
+import { ProgressPage } from '@/features/progress/pages/ProgressPage';
+import { SkillsPage } from '@/features/skills/pages/SkillsPage';
 import { FeaturePlaceholder } from '@/components/common/FeaturePlaceholder';
 import { 
-  Calendar, Clock, Scale, TrendingUp, Layers, BookOpen, Briefcase, FileText, Mic, Sparkles, Settings 
+  Scale, BookOpen, Briefcase, FileText, Mic, Sparkles, Settings 
 } from 'lucide-react';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -67,44 +71,26 @@ export const router = createBrowserRouter([
       },
       {
         path: 'planner',
-        element: (
-          <FeaturePlaceholder
-            title="Daily Planner"
-            milestone="Milestone 2"
-            description="Intelligent daily schedule allocation, calendar views, and overload detection."
-            icon={Calendar}
-            features={[
-              'Daily timeline view (morning to evening)',
-              'Drag-and-drop task time blocking',
-              'Auto-schedule algorithm based on duration and priority',
-              'Overload warnings and smart reschedule recommendations',
-            ]}
-          />
-        ),
+        element: <PlannerPage />,
       },
       {
         path: 'focus',
-        element: (
-          <FeaturePlaceholder
-            title="Focus & Attention Tracker"
-            milestone="Milestone 2"
-            description="Measure active execution versus distraction with live timer sessions."
-            icon={Clock}
-            features={[
-              'Interactive focus stopwatch linked to specific tasks',
-              'Productive vs. Distracted time interval categorization',
-              'Session outcome review and actual vs. estimated variance',
-              'Focus streak and daily deep-work metrics',
-            ]}
-          />
-        ),
+        element: <FocusPage />,
+      },
+      {
+        path: 'progress',
+        element: <ProgressPage />,
+      },
+      {
+        path: 'skills',
+        element: <SkillsPage />,
       },
       {
         path: 'decisions',
         element: (
           <FeaturePlaceholder
             title="Decision Simulator"
-            milestone="Milestone 2"
+            milestone="Phase 2"
             description="Structured multi-factor decision analysis (Time, Risk, Effort, Career Impact)."
             icon={Scale}
             features={[
@@ -112,40 +98,6 @@ export const router = createBrowserRouter([
               'Transparent deterministic scoring algorithm',
               'Explainable trade-off analysis',
               'Long-term decision history and outcome evaluation',
-            ]}
-          />
-        ),
-      },
-      {
-        path: 'progress',
-        element: (
-          <FeaturePlaceholder
-            title="Progress & History"
-            milestone="Milestone 2"
-            description="Execution trends, weekly productivity scores, and behavioral analysis."
-            icon={TrendingUp}
-            features={[
-              'Daily and 30-day productivity snapshots',
-              'Task completion rate & focus ratio trends',
-              'Estimation accuracy analytics',
-              'Historical activity timeline',
-            ]}
-          />
-        ),
-      },
-      {
-        path: 'skills',
-        element: (
-          <FeaturePlaceholder
-            title="Evidence-Based Skill Graph"
-            milestone="Milestone 3"
-            description="Living representation of user capabilities backed by verifiable project & task evidence."
-            icon={Layers}
-            features={[
-              'Evidence-backed skill strength scores (0-100)',
-              'Confidence rating and evidence provenance trail',
-              'Skill decay tracking based on recency',
-              'Target role requirement overlay',
             ]}
           />
         ),
