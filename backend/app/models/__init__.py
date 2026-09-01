@@ -10,6 +10,7 @@ from app.models.learning import (
     Role, RoleSkill, LearningResource, LearningResourceSkill,
     LearningPath, LearningPathItem
 )
+from app.models.ai import AIConversation, AIMessage, AIAction
 
 __all__ = [
     "Base",
@@ -32,4 +33,7 @@ __all__ = [
     "LearningResourceSkill",
     "LearningPath",
     "LearningPathItem",
+    "AIConversation",
+    "AIMessage",
+    "AIAction",
 ]

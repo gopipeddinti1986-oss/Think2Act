@@ -8,6 +8,7 @@ from app.services.focus_service import FocusService
 from app.services.productivity_service import ProductivityService
 from app.services.skill_service import SkillService
 from app.services.learning_service import LearningService
+from app.services.ai_service import AIService
 
 __all__ = [
     "AuthService",
@@ -20,4 +21,5 @@ __all__ = [
     "ProductivityService",
     "SkillService",
     "LearningService",
+    "AIService",
 ]

@@ -11,6 +11,7 @@ from app.api.v1.skills import router as skills_router
 from app.api.v1.evidence import router as evidence_router
 from app.api.v1.roles import router as roles_router
 from app.api.v1.learning import router as learning_router
+from app.api.v1.ai import router as ai_router
 from app.api.v1.health import router as health_router
 
 api_router = APIRouter()
@@ -28,3 +29,4 @@ api_router.include_router(skills_router, prefix="/skills", tags=["Skills"])
 api_router.include_router(evidence_router, prefix="/evidence", tags=["Evidence"])
 api_router.include_router(roles_router, prefix="/roles", tags=["Roles"])
 api_router.include_router(learning_router, prefix="/learning", tags=["Learning"])
+api_router.include_router(ai_router, prefix="/ai", tags=["AI Coach"])

@@ -11,9 +11,10 @@ import { FocusPage } from '@/features/focus/pages/FocusPage';
 import { ProgressPage } from '@/features/progress/pages/ProgressPage';
 import { SkillsPage } from '@/features/skills/pages/SkillsPage';
 import { LearningPage } from '@/features/learning/pages/LearningPage';
+import { AIPage } from '@/features/ai/pages/AIPage';
 import { FeaturePlaceholder } from '@/components/common/FeaturePlaceholder';
 import { 
-  Scale, Briefcase, FileText, Mic, Sparkles, Settings 
+  Scale, Briefcase, FileText, Mic, Settings 
 } from 'lucide-react';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -91,6 +92,10 @@ export const router = createBrowserRouter([
         element: <LearningPage />,
       },
       {
+        path: 'ai',
+        element: <AIPage />,
+      },
+      {
         path: 'decisions',
         element: (
           <FeaturePlaceholder
@@ -154,23 +159,6 @@ export const router = createBrowserRouter([
               'Rubric-based answer evaluation (Correctness, Clarity, Completeness)',
               'Ideal answer breakdown & teaching insights',
               'Interview outcome feedback into Skill Graph',
-            ]}
-          />
-        ),
-      },
-      {
-        path: 'ai',
-        element: (
-          <FeaturePlaceholder
-            title="Think2Act AI Coach"
-            milestone="Milestone 5"
-            description="Proactive conversational operating assistant reasoning over your complete state."
-            icon={Sparkles}
-            features={[
-              'Deeply grounded in user goals, tasks, focus, and skills',
-              'Proactive scheduling suggestions and habit feedback',
-              'Strict action-confirmation guardrails (no silent DB changes)',
-              'Explainable AI reasoning',
             ]}
           />
         ),

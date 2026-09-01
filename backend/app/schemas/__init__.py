@@ -28,6 +28,10 @@ from app.schemas.learning import (
     LearningResourceResponse, LearningPathResponse, LearningPathItemResponse,
     GenerateRoadmapRequest, ConvertLearningToTaskResponse
 )
+from app.schemas.ai import (
+    AIMessageBase, AIMessageCreate, AIMessageResponse, AIActionBase,
+    AIActionResponse, AIConversationResponse, ChatRequest, ChatResponse
+)
 
 __all__ = [
     "Token", "TokenPayload", "RegisterRequest", "LoginRequest", "AuthUserResponse", "AuthResponse",
@@ -45,5 +49,7 @@ __all__ = [
     "EvidenceCreate", "EvidenceResponse",
     "RoleResponse", "RoleSkillRequirement", "SkillGapItem", "SkillGapReport",
     "LearningResourceResponse", "LearningPathResponse", "LearningPathItemResponse",
-    "GenerateRoadmapRequest", "ConvertLearningToTaskResponse"
+    "GenerateRoadmapRequest", "ConvertLearningToTaskResponse",
+    "AIMessageBase", "AIMessageCreate", "AIMessageResponse", "AIActionBase",
+    "AIActionResponse", "AIConversationResponse", "ChatRequest", "ChatResponse"
 ]
