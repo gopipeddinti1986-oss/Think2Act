@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List
@@ -26,8 +26,10 @@ class PlannerEntryResponse(PlannerEntryBase):
     updated_at: datetime
     task: Optional[TaskResponse] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+class AutoScheduleRequest(BaseModel):
+    schedule_date: Optional[str] = None
 
 class AutoScheduleSuggestion(BaseModel):
     task_id: UUID

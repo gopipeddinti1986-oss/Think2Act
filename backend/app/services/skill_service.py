@@ -23,6 +23,7 @@ DEFAULT_SKILL_SEEDS = [
 
 class SkillService:
     def __init__(self, db: AsyncSession):
+        self.db = db
         self.skill_repo = SkillRepository(db)
         self.evidence_repo = EvidenceRepository(db)
 
@@ -52,10 +53,10 @@ class SkillService:
         await self.ensure_default_seeds()
         user_skills = await self.skill_repo.list_user_skills(user_id)
         
-        # If user has no skills initialized yet, create initial default user_skill links with baseline evidence
+        # If user has no skills initialized yet, initialize all catalog skills
         if not user_skills:
             all_skills = await self.skill_repo.list_all()
-            for s in all_skills[:5]:
+            for s in all_skills:
                 await self.skill_repo.update_user_skill_level(
                     user_id=user_id,
                     skill_id=s.id,
@@ -72,8 +73,8 @@ class SkillService:
             
             responses.append(UserSkillResponse(
                 skill_id=us.skill_id,
-                name=us.skill.name,
-                category=us.skill.category,
+                name=us.skill.name if us.skill else "Skill",
+                category=us.skill.category if us.skill else "General",
                 level=float(us.level),
                 confidence=float(us.confidence),
                 last_assessed_at=us.last_assessed_at,
@@ -96,8 +97,8 @@ class SkillService:
 
         return UserSkillResponse(
             skill_id=user_skill.skill_id,
-            name=user_skill.skill.name,
-            category=user_skill.skill.category,
+            name=user_skill.skill.name if user_skill.skill else "Skill",
+            category=user_skill.skill.category if user_skill.skill else "General",
             level=float(user_skill.level),
             confidence=float(user_skill.confidence),
             last_assessed_at=user_skill.last_assessed_at,
@@ -126,7 +127,6 @@ class SkillService:
         )
 
         # 2. Evidence-based scoring engine
-        # Total strength + source diversity formula:
         evidence_items = await self.evidence_repo.list_by_user_and_skill(user_id, data.skill_id)
         total_strength = sum(float(e.strength) for e in evidence_items)
         unique_sources = len(set(e.source_type for e in evidence_items))
@@ -149,7 +149,6 @@ class SkillService:
         return EvidenceResponse.model_validate(evidence)
 
     async def on_task_completed(self, user_id: UUID, task_id: UUID, task_title: str):
-        # Find skills associated with task
         task_skills = await self.skill_repo.get_task_skills(task_id)
         for skill in task_skills:
             await self.add_evidence_and_recalculate(

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { focusApi } from '@/services/api/focus';
 import { tasksApi } from '@/services/api/tasks';
 import { FocusCompleteModal } from '../components/FocusCompleteModal';
-import { Play, Pause, Square, AlertCircle, Clock, CheckCircle2, Flame } from 'lucide-react';
+import { Play, Square, AlertCircle } from 'lucide-react';
 
 export function FocusPage() {
   const queryClient = useQueryClient();
@@ -28,7 +28,7 @@ export function FocusPage() {
 
   // Active timer ticker
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: any = null;
     if (isRunning) {
       interval = setInterval(() => {
         if (isDistracted) {

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List
@@ -18,8 +18,7 @@ class RoleResponse(BaseModel):
     description: Optional[str] = None
     requirements: List[RoleSkillRequirement] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class SkillGapItem(BaseModel):
     skill_id: UUID
@@ -48,8 +47,7 @@ class LearningResourceResponse(BaseModel):
     description: Optional[str] = None
     difficulty: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class LearningPathItemResponse(BaseModel):
     id: UUID
@@ -62,8 +60,7 @@ class LearningPathItemResponse(BaseModel):
     progress: float
     resource: Optional[LearningResourceResponse] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class LearningPathResponse(BaseModel):
     id: UUID
@@ -75,8 +72,7 @@ class LearningPathResponse(BaseModel):
     created_at: datetime
     items: List[LearningPathItemResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class GenerateRoadmapRequest(BaseModel):
     role_id: Optional[UUID] = None

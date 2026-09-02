@@ -57,9 +57,9 @@ export interface Task {
 }
 
 export interface TasksSummary {
-  total: int;
-  completed: int;
-  pending: int;
+  total: number;
+  completed: number;
+  pending: number;
   completion_rate: number;
 }
 

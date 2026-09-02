@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List, Dict, Any
@@ -15,8 +15,7 @@ class AIMessageResponse(AIMessageBase):
     conversation_id: UUID
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AIActionBase(BaseModel):
     action_type: str  # CREATE_TASK, SCHEDULE_TASK, COMPLETE_TASK, CREATE_ROADMAP
@@ -33,8 +32,7 @@ class AIActionResponse(AIActionBase):
     created_at: datetime
     confirmed_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AIConversationResponse(BaseModel):
     id: UUID
@@ -45,8 +43,7 @@ class AIConversationResponse(BaseModel):
     messages: List[AIMessageResponse] = []
     actions: List[AIActionResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ChatRequest(BaseModel):
     message: str

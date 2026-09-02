@@ -17,7 +17,6 @@ class FocusService:
         self.productivity_repo = ProductivityRepository(db)
 
     async def start_session(self, user_id: UUID, data: FocusSessionStart) -> FocusSessionResponse:
-        # Check active session
         active = await self.focus_repo.get_active_session(user_id)
         if active:
             return FocusSessionResponse.model_validate(active)
@@ -55,11 +54,12 @@ class FocusService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Focus session not found.")
 
         # Update task if completed or update actual duration
+        should_complete = data.complete_task or data.mark_task_completed
         if session.task_id:
             task = await self.task_repo.get_by_id(session.task_id, user_id)
             if task:
                 task.actual_minutes += int(data.productive_seconds / 60)
-                if data.mark_task_completed:
+                if should_complete:
                     task.status = "COMPLETED"
                     task.completed_at = datetime.now(timezone.utc)
                 await self.task_repo.db.commit()
@@ -69,7 +69,6 @@ class FocusService:
         total, completed, pending, rate = await self.task_repo.get_summary_counts(user_id)
         _, today_focus_s, today_distract_s, focus_ratio = await self.focus_repo.get_today_totals(user_id)
         
-        # Weighted Productivity Score = 0.5 * (Task Completion Rate) + 0.5 * (Focus Ratio)
         productivity_score = round(0.5 * rate + 0.5 * focus_ratio, 1)
 
         await self.productivity_repo.upsert_daily_snapshot(
@@ -90,9 +89,15 @@ class FocusService:
 
     async def get_today_summary(self, user_id: UUID) -> FocusSummaryToday:
         count, focus_s, distract_s, ratio = await self.focus_repo.get_today_totals(user_id)
+        active = await self.focus_repo.get_active_session(user_id)
         return FocusSummaryToday(
             total_sessions=count,
+            total_focus_seconds=focus_s,
             focus_seconds=focus_s,
+            total_distraction_seconds=distract_s,
             distracted_seconds=distract_s,
-            focus_ratio=ratio
+            focus_percentage=ratio,
+            focus_ratio=ratio,
+            is_active=active is not None,
+            active_session=FocusSessionResponse.model_validate(active) if active else None
         )

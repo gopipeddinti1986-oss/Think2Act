@@ -1,7 +1,6 @@
 import uuid
 from datetime import date, datetime, timezone
-from sqlalchemy import Column, Integer, Numeric, Date, DateTime, ForeignKey, Index, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Integer, Numeric, Date, DateTime, ForeignKey, Index, UniqueConstraint, Uuid
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.models.base import utc_now
@@ -9,8 +8,8 @@ from app.models.base import utc_now
 class ProductivityMetric(Base):
     __tablename__ = "productivity_metrics"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id = Column(Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     date = Column(Date, default=date.today, nullable=False)
     tasks_planned = Column(Integer, default=0, nullable=False)
     tasks_completed = Column(Integer, default=0, nullable=False)

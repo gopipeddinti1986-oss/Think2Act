@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
@@ -29,17 +29,14 @@ class UserProfileResponse(UserProfileBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserDetailResponse(BaseModel):
     id: UUID
-    name: str
     email: EmailStr
+    name: str
     is_active: bool
-    profile: Optional[UserProfileResponse] = None
     created_at: datetime
-    updated_at: datetime
+    profile: Optional[UserProfileResponse] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

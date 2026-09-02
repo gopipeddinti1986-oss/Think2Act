@@ -2,7 +2,7 @@ from typing import Optional, List
 from uuid import UUID
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, case
 from app.models.task import Task
 from app.schemas.task import TaskCreate, TaskUpdate
 
@@ -98,11 +98,18 @@ class TaskRepository:
         return total, completed, pending, rate
 
     async def get_next_action(self, user_id: UUID) -> Optional[Task]:
+        priority_weight = case(
+            (Task.priority == "URGENT", 4),
+            (Task.priority == "HIGH", 3),
+            (Task.priority == "MEDIUM", 2),
+            (Task.priority == "LOW", 1),
+            else_=0
+        )
         stmt = select(Task).where(
             Task.user_id == user_id,
             Task.status.in_(["TODO", "IN_PROGRESS"])
         ).order_by(
-            Task.priority.desc(),
+            priority_weight.desc(),
             Task.due_at.asc().nullslast(),
             Task.created_at.asc()
         ).limit(1)

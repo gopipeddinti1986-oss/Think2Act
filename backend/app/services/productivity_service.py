@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.productivity_repository import ProductivityRepository
 from app.repositories.task_repository import TaskRepository
@@ -27,12 +27,14 @@ class ProductivityService:
             current_d = start_date + timedelta(days=i)
             if current_d in snapshot_dict:
                 s = snapshot_dict[current_d]
+                c_rate = (s.tasks_completed / s.tasks_planned * 100) if s.tasks_planned > 0 else 0.0
                 history_points.append(DailyMetricPoint(
                     date=current_d.strftime("%b %d"),
                     score=float(s.score),
                     focus_minutes=int(s.focus_seconds / 60),
                     distraction_minutes=int(s.distraction_seconds / 60),
-                    tasks_completed=s.tasks_completed
+                    tasks_completed=s.tasks_completed,
+                    completion_rate=round(c_rate, 1)
                 ))
             else:
                 history_points.append(DailyMetricPoint(
@@ -40,40 +42,33 @@ class ProductivityService:
                     score=0.0,
                     focus_minutes=0,
                     distraction_minutes=0,
-                    tasks_completed=0
+                    tasks_completed=0,
+                    completion_rate=0.0
                 ))
 
-        # Current vs previous period comparison
-        current_scores = [p.score for p in history_points if p.score > 0]
-        current_score = round(sum(current_scores) / len(current_scores), 1) if current_scores else 0.0
+        total_focus_sec = sum(s.focus_seconds for s in snapshots)
+        total_tasks_comp = sum(s.tasks_completed for s in snapshots)
+        avg_score = (sum(float(s.score) for s in snapshots) / len(snapshots)) if snapshots else 0.0
 
-        # Calculate previous period
-        prev_start = start_date - timedelta(days=days)
-        prev_snapshots = await self.productivity_repo.list_range(user_id, prev_start, start_date - timedelta(days=1))
-        prev_scores = [float(s.score) for s in prev_snapshots if float(s.score) > 0]
-        prev_score = round(sum(prev_scores) / len(prev_scores), 1) if prev_scores else 0.0
-
-        change_pct = round(((current_score - prev_score) / prev_score * 100), 1) if prev_score > 0 else 0.0
-
-        # Estimation accuracy: analyze completed tasks planned vs actual minutes
+        # Calculate estimation accuracy (actual vs estimated minutes across completed tasks)
         tasks = await self.task_repo.list_by_user(user_id, status="COMPLETED")
-        accuracy = 85.0
+        accuracy = 85.0  # default baseline
         if tasks:
-            accuracies = []
+            diffs = []
             for t in tasks:
-                if t.actual_minutes > 0 and t.estimated_minutes > 0:
-                    diff = abs(t.estimated_minutes - t.actual_minutes)
-                    acc = max(0, 100 - (diff / t.estimated_minutes * 100))
-                    accuracies.append(acc)
-            if accuracies:
-                accuracy = round(sum(accuracies) / len(accuracies), 1)
+                if t.estimated_minutes > 0:
+                    diff = abs(t.actual_minutes - t.estimated_minutes) / t.estimated_minutes
+                    diffs.append(max(0.0, 1.0 - diff))
+            if diffs:
+                accuracy = round((sum(diffs) / len(diffs)) * 100, 1)
 
         return ProductivityTrendResponse(
-            current_score=current_score,
-            previous_score=prev_score,
-            change_percentage=change_pct,
             range_days=days,
-            history=history_points,
+            average_score=round(avg_score, 1),
+            total_focus_hours=round(total_focus_sec / 3600, 1),
+            total_completed_tasks=total_tasks_comp,
+            estimation_accuracy=accuracy,
             estimation_accuracy_percentage=accuracy,
-            strongest_focus_period="7:00 PM - 10:00 PM (Evening)"
+            peak_focus_time="Morning (9 AM - 12 PM)",
+            history=history_points
         )

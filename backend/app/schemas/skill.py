@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List
 
 class SkillBase(BaseModel):
     name: str
-    category: Optional[str] = "Programming"
+    category: Optional[str] = None
     description: Optional[str] = None
 
 class SkillCreate(SkillBase):
@@ -15,8 +15,7 @@ class SkillResponse(SkillBase):
     id: UUID
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class EvidenceItemResponse(BaseModel):
     id: UUID
@@ -27,8 +26,7 @@ class EvidenceItemResponse(BaseModel):
     description: str
     occurred_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class SkillHistoryPoint(BaseModel):
     level: float
@@ -36,8 +34,7 @@ class SkillHistoryPoint(BaseModel):
     reason: Optional[str] = None
     recorded_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserSkillResponse(BaseModel):
     skill_id: UUID
@@ -50,8 +47,7 @@ class UserSkillResponse(BaseModel):
     recent_evidence: List[EvidenceItemResponse] = []
     history: List[SkillHistoryPoint] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AssignTaskSkillsRequest(BaseModel):
     skill_ids: List[UUID]

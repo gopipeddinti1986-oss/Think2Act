@@ -17,7 +17,13 @@ async def test_evidence_based_skills_flow(client):
     skills_data = skills_resp.json()
     assert len(skills_data) > 0
     
-    python_skill = next(s for s in skills_data if "Python" in s["name"])
+    python_skill = None
+    for s in skills_data:
+        if "Python" in s["name"]:
+            python_skill = s
+            break
+            
+    assert python_skill is not None
     skill_id = python_skill["skill_id"]
 
     # 3. Add Evidence for Python

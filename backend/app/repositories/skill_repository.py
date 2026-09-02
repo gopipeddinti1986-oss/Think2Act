@@ -94,8 +94,7 @@ class SkillRepository:
         self.db.add(history)
 
         await self.db.commit()
-        await self.db.refresh(user_skill, ["skill"])
-        return user_skill
+        return await self.get_user_skill(user_id, skill_id)
 
     async def get_skill_history(self, user_id: UUID, skill_id: UUID, limit: int = 10) -> List[SkillHistory]:
         stmt = (

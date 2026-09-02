@@ -1,15 +1,13 @@
-from pydantic_settings import BaseSettings
-from typing import List, Union
-from pydantic import AnyHttpUrl, validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Think2Act"
     API_V1_STR: str = "/api/v1"
     ENVIRONMENT: str = "development"
     
-    # DB URL - defaults to local postgres or docker
-    DATABASE_URL: str = "postgresql+asyncpg://think2act:think2act_password@localhost:5432/think2act_db"
-    SYNC_DATABASE_URL: str = "postgresql://think2act:think2act_password@localhost:5432/think2act_db"
+    # Defaults to local SQLite if PostgreSQL is not running or specified
+    DATABASE_URL: str = "sqlite+aiosqlite:///./think2act.db"
     
     # JWT & Auth
     JWT_SECRET: str = "think2act_super_secret_jwt_key_2026_change_in_prod"
@@ -24,9 +22,10 @@ class Settings(BaseSettings):
         "http://localhost:8000"
     ]
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
-        extra = "allow"
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+        env_file=".env",
+        extra="allow"
+    )
 
 settings = Settings()
