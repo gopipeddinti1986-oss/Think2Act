@@ -49,3 +49,9 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
