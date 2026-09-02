@@ -12,6 +12,10 @@ from app.api.v1.evidence import router as evidence_router
 from app.api.v1.roles import router as roles_router
 from app.api.v1.learning import router as learning_router
 from app.api.v1.ai import router as ai_router
+from app.api.v1.jobs import router as jobs_router
+from app.api.v1.resume import router as resume_router
+from app.api.v1.interviews import router as interviews_router
+from app.api.v1.decisions import router as decisions_router
 from app.api.v1.health import router as health_router
 
 api_router = APIRouter()
@@ -30,3 +34,7 @@ api_router.include_router(evidence_router, prefix="/evidence", tags=["Evidence"]
 api_router.include_router(roles_router, prefix="/roles", tags=["Roles"])
 api_router.include_router(learning_router, prefix="/learning", tags=["Learning"])
 api_router.include_router(ai_router, prefix="/ai", tags=["AI Coach"])
+api_router.include_router(jobs_router, tags=["Jobs"])
+api_router.include_router(resume_router, tags=["Resume"])
+api_router.include_router(interviews_router, tags=["Interviews"])
+api_router.include_router(decisions_router, tags=["Decisions"])

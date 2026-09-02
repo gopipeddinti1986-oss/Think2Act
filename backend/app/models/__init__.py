@@ -11,6 +11,10 @@ from app.models.learning import (
     LearningPath, LearningPathItem
 )
 from app.models.ai import AIConversation, AIMessage, AIAction
+from app.models.job import JobPosting, JobApplication, ApplicationEvent
+from app.models.resume import Resume, ResumeSuggestion
+from app.models.interview import InterviewSession, InterviewQuestion
+from app.models.decision import Decision, DecisionOption, DecisionCriterion, DecisionScore
 
 __all__ = [
     "Base",
@@ -36,4 +40,15 @@ __all__ = [
     "AIConversation",
     "AIMessage",
     "AIAction",
+    "JobPosting",
+    "JobApplication",
+    "ApplicationEvent",
+    "Resume",
+    "ResumeSuggestion",
+    "InterviewSession",
+    "InterviewQuestion",
+    "Decision",
+    "DecisionOption",
+    "DecisionCriterion",
+    "DecisionScore",
 ]

@@ -27,7 +27,6 @@ export async function apiClient<T>(
   });
 
   if (response.status === 401) {
-    // If unauthorized, clear token
     if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
       localStorage.removeItem('t2a_token');
       localStorage.removeItem('t2a_user');
@@ -54,3 +53,31 @@ export async function apiClient<T>(
 
   return response.json() as Promise<T>;
 }
+
+// Attach convenience helper methods
+apiClient.get = <T>(endpoint: string, options?: RequestInit) =>
+  apiClient<T>(endpoint, { ...options, method: 'GET' });
+
+apiClient.post = <T>(endpoint: string, body?: any, options?: RequestInit) =>
+  apiClient<T>(endpoint, {
+    ...options,
+    method: 'POST',
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+apiClient.patch = <T>(endpoint: string, body?: any, options?: RequestInit) =>
+  apiClient<T>(endpoint, {
+    ...options,
+    method: 'PATCH',
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+apiClient.put = <T>(endpoint: string, body?: any, options?: RequestInit) =>
+  apiClient<T>(endpoint, {
+    ...options,
+    method: 'PUT',
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+apiClient.delete = <T>(endpoint: string, options?: RequestInit) =>
+  apiClient<T>(endpoint, { ...options, method: 'DELETE' });
