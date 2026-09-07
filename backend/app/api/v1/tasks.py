@@ -51,6 +51,7 @@ async def get_task(
     return await service.get_task(task_id, current_user.id)
 
 @router.patch("/{task_id}", response_model=TaskResponse)
+@router.put("/{task_id}", response_model=TaskResponse)
 async def update_task(
     task_id: UUID,
     data: TaskUpdate,
@@ -63,11 +64,15 @@ async def update_task(
 @router.post("/{task_id}/complete", response_model=TaskResponse)
 async def complete_task(
     task_id: UUID,
+    payload: Optional[dict] = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     service = TaskService(db)
-    return await service.complete_task(task_id, current_user.id)
+    duration = None
+    if payload:
+        duration = payload.get("actual_duration_minutes") or payload.get("actual_minutes")
+    return await service.complete_task(task_id, current_user.id, actual_duration_minutes=duration)
 
 @router.delete("/{task_id}")
 async def delete_task(

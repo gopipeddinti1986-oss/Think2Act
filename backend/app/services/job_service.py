@@ -4,12 +4,15 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.job_repository import JobRepository
 from app.repositories.skill_repository import SkillRepository
+from app.repositories.activity_repository import ActivityRepository
 from app.schemas.job import JobPostingResponse, JobApplicationResponse, JobApplicationCreate
 
 class JobService:
     def __init__(self, db: AsyncSession):
+        self.db = db
         self.job_repo = JobRepository(db)
         self.skill_repo = SkillRepository(db)
+        self.activity_repo = ActivityRepository(db)
 
     async def list_matched_jobs(self, user_id: UUID) -> List[JobPostingResponse]:
         postings = await self.job_repo.list_postings()
@@ -35,7 +38,7 @@ class JobService:
                 if u_level < r_level:
                     missing.append(s_name)
 
-            avg_match = round((sum(matches) / len(matches)) * 100, 1) if matches else 75.0
+            avg_match = round((sum(matches) / len(matches)) * 100, 1) if matches else 0.0
             resp = JobPostingResponse(
                 id=p.id,
                 title=p.title,
@@ -60,6 +63,19 @@ class JobService:
         if not job:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job posting not found.")
         app = await self.job_repo.create_application(user_id, data.job_id, data.status, data.notes)
+
+        # Emit activity event
+        await self.activity_repo.create_event(
+            user_id=user_id,
+            event_type="JOB_APPLICATION_CREATED",
+            title=f"Application submitted for {job.title} at {job.company}",
+            description=f"Status: {app.status}",
+            entity_type="JOB_APPLICATION",
+            entity_id=app.id,
+            payload={"job_id": str(job.id), "status": app.status, "company": job.company, "title": job.title}
+        )
+        await self.db.commit()
+
         return JobApplicationResponse.model_validate(app)
 
     async def update_status(self, user_id: UUID, app_id: UUID, new_status: str) -> JobApplicationResponse:
@@ -67,4 +83,20 @@ class JobService:
         if not app:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found.")
         updated = await self.job_repo.update_status(app, new_status)
+
+        job_title = updated.job.title if updated.job else "Role"
+        company = updated.job.company if updated.job else "Company"
+
+        # Emit activity event
+        await self.activity_repo.create_event(
+            user_id=user_id,
+            event_type="JOB_APPLICATION_STATUS_UPDATED",
+            title=f"Application status updated to {new_status} for {job_title}",
+            description=f"Company: {company}",
+            entity_type="JOB_APPLICATION",
+            entity_id=updated.id,
+            payload={"status": new_status, "job_id": str(updated.job_id)}
+        )
+        await self.db.commit()
+
         return JobApplicationResponse.model_validate(updated)

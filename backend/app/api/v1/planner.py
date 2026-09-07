@@ -61,3 +61,23 @@ async def auto_schedule(
     service = PlannerService(db)
     target_date = schedule_date or datetime.now()
     return await service.auto_schedule_suggestions(current_user.id, target_date)
+
+@router.post("/suggestions")
+async def get_schedule_suggestions(
+    work_start: datetime = Query(...),
+    work_end: datetime = Query(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    service = PlannerService(db)
+    return await service.generate_schedule_suggestions(current_user.id, work_start, work_end)
+
+@router.post("/confirm")
+async def confirm_schedule(
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    service = PlannerService(db)
+    slots = payload.get("confirmed_slots", [])
+    return await service.confirm_schedule_suggestions(current_user.id, slots)

@@ -110,8 +110,10 @@ class SkillService:
     async def add_evidence_and_recalculate(
         self,
         user_id: UUID,
-        data: EvidenceCreate
+        data: EvidenceCreate,
+        commit: bool = True
     ) -> EvidenceResponse:
+        import math
         skill = await self.skill_repo.get_by_id(data.skill_id)
         if not skill:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Skill not found.")
@@ -123,19 +125,37 @@ class SkillService:
             source_type=data.source_type,
             description=data.description,
             strength=data.strength,
-            source_id=data.source_id
+            source_id=data.source_id,
+            commit=commit
         )
 
-        # 2. Evidence-based scoring engine
+        # 2. Diminishing-returns evidence scoring engine
         evidence_items = await self.evidence_repo.list_by_user_and_skill(user_id, data.skill_id)
-        total_strength = sum(float(e.strength) for e in evidence_items)
-        unique_sources = len(set(e.source_type for e in evidence_items))
-
-        # Level: progressive curve up to 100
-        computed_level = min(100.0, round(15.0 + (total_strength * 0.85), 1))
         
-        # Confidence: scales with evidence count and diverse sources
-        computed_confidence = min(0.95, round(0.4 + (len(evidence_items) * 0.1) + (unique_sources * 0.05), 2))
+        # Group by source_type to apply diminishing returns to repetitive same-source actions
+        source_groups: dict = {}
+        for e in evidence_items:
+            st = e.source_type or "OTHER"
+            source_groups.setdefault(st, []).append(float(e.strength))
+
+        total_effective_points = 0.0
+        for st, strengths in source_groups.items():
+            # Diminishing returns formula: each subsequent evidence item from same source yields 1 / sqrt(i)
+            source_pts = sum(s / math.sqrt(idx + 1) for idx, s in enumerate(strengths))
+            total_effective_points += source_pts
+
+        # Diversity multiplier: reward diverse proof (tasks, projects, interviews, certifications)
+        unique_sources = len(source_groups)
+        diversity_bonus = 1.0 + (0.12 * max(0, unique_sources - 1))
+        weighted_points = total_effective_points * diversity_bonus
+
+        # Asymptotic bounded curve towards 100: prevents infinite gaming with trivial repeats
+        # Level reaches ~35 with 3 tasks, ~65 with diverse projects, 85+ with interview & certification proof
+        computed_level = min(100.0, round(100.0 * (1.0 - math.exp(-weighted_points / 65.0)), 1))
+        
+        # Confidence: scales with evidence count and source diversity
+        evidence_count = len(evidence_items)
+        computed_confidence = min(0.95, round(0.30 + (0.08 * math.sqrt(evidence_count)) + (0.10 * max(0, unique_sources - 1)), 2))
 
         # 3. Update UserSkill and record history point
         await self.skill_repo.update_user_skill_level(
@@ -143,12 +163,13 @@ class SkillService:
             skill_id=data.skill_id,
             level=computed_level,
             confidence=computed_confidence,
-            reason=f"New evidence added: {data.description[:60]}"
+            reason=f"Evidence update ({data.source_type}): {data.description[:60]}",
+            commit=commit
         )
 
         return EvidenceResponse.model_validate(evidence)
 
-    async def on_task_completed(self, user_id: UUID, task_id: UUID, task_title: str):
+    async def on_task_completed(self, user_id: UUID, task_id: UUID, task_title: str, commit: bool = True):
         task_skills = await self.skill_repo.get_task_skills(task_id)
         for skill in task_skills:
             await self.add_evidence_and_recalculate(
@@ -159,5 +180,6 @@ class SkillService:
                     source_id=task_id,
                     strength=12.5,
                     description=f"Successfully completed task: {task_title}"
-                )
+                ),
+                commit=commit
             )

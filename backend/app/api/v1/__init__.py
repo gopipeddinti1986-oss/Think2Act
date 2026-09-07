@@ -16,6 +16,7 @@ from app.api.v1.jobs import router as jobs_router
 from app.api.v1.resume import router as resume_router
 from app.api.v1.interviews import router as interviews_router
 from app.api.v1.decisions import router as decisions_router
+from app.api.v1.settings import router as settings_router
 from app.api.v1.health import router as health_router
 
 api_router = APIRouter()
@@ -38,3 +39,4 @@ api_router.include_router(jobs_router, tags=["Jobs"])
 api_router.include_router(resume_router, tags=["Resume"])
 api_router.include_router(interviews_router, tags=["Interviews"])
 api_router.include_router(decisions_router, tags=["Decisions"])
+api_router.include_router(settings_router, prefix="/settings", tags=["Settings"])

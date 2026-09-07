@@ -34,3 +34,15 @@ async def test_register_and_login(client):
     # 4. Duplicate registration check
     dup_resp = await client.post("/api/v1/auth/register", json=reg_payload)
     assert dup_resp.status_code == 409
+
+    # 5. Token Refresh
+    refresh_token = login_resp.json()["token"]["refresh_token"]
+    assert refresh_token is not None
+    refresh_resp = await client.post("/api/v1/auth/refresh", json={"refresh_token": refresh_token})
+    assert refresh_resp.status_code == 200
+    assert "access_token" in refresh_resp.json()["token"]
+
+    # 6. Logout
+    logout_resp = await client.post("/api/v1/auth/logout", headers=headers)
+    assert logout_resp.status_code == 200
+

@@ -34,6 +34,14 @@ class UserSkill(Base):
     user = relationship("User")
     skill = relationship("Skill", back_populates="user_skills")
 
+    @property
+    def proficiency_score(self) -> float:
+        return float(self.level or 0.0)
+
+    @property
+    def confidence_score(self) -> float:
+        return float(self.confidence or 0.0)
+
 class Evidence(Base):
     __tablename__ = "evidence"
 
@@ -84,3 +92,5 @@ class TaskSkill(Base):
 
     task = relationship("Task")
     skill = relationship("Skill")
+
+task_skills = TaskSkill.__table__

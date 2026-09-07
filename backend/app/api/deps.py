@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from uuid import UUID
 
 from app.core.config import settings
@@ -29,7 +30,7 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    stmt = select(User).where(User.id == UUID(user_id))
+    stmt = select(User).options(selectinload(User.profile)).where(User.id == UUID(user_id))
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
     if user is None or not user.is_active:

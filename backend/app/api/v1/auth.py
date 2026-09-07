@@ -4,7 +4,10 @@ from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
 from app.services.auth_service import AuthService
-from app.schemas.auth import RegisterRequest, LoginRequest, AuthResponse, AuthUserResponse
+from app.schemas.auth import (
+    RegisterRequest, LoginRequest, AuthResponse,
+    AuthUserResponse, RefreshTokenRequest
+)
 
 router = APIRouter()
 
@@ -23,6 +26,14 @@ async def login(
 ):
     service = AuthService(db)
     return await service.login(data)
+
+@router.post("/refresh", response_model=AuthResponse)
+async def refresh_token(
+    data: RefreshTokenRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    service = AuthService(db)
+    return await service.refresh_token(data)
 
 @router.get("/me", response_model=AuthUserResponse)
 async def get_me(

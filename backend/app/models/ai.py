@@ -13,8 +13,8 @@ class AIConversation(Base, TimeStampedModel):
     title = Column(String(255), default="New Coaching Session", nullable=False)
 
     user = relationship("User")
-    messages = relationship("AIMessage", back_populates="conversation", cascade="all, delete-orphan", order_by="AIMessage.created_at")
-    actions = relationship("AIAction", back_populates="conversation")
+    messages = relationship("AIMessage", back_populates="conversation", cascade="all, delete-orphan", order_by="AIMessage.created_at", lazy="selectin")
+    actions = relationship("AIAction", back_populates="conversation", lazy="selectin")
 
 class AIMessage(Base):
     __tablename__ = "ai_messages"

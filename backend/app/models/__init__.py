@@ -15,6 +15,7 @@ from app.models.job import JobPosting, JobApplication, ApplicationEvent
 from app.models.resume import Resume, ResumeSuggestion
 from app.models.interview import InterviewSession, InterviewQuestion
 from app.models.decision import Decision, DecisionOption, DecisionCriterion, DecisionScore
+from app.models.activity import ActivityEvent
 
 __all__ = [
     "Base",
@@ -51,4 +52,5 @@ __all__ = [
     "DecisionOption",
     "DecisionCriterion",
     "DecisionScore",
+    "ActivityEvent",
 ]

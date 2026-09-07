@@ -27,6 +27,8 @@ class GoalUpdate(BaseModel):
 class GoalResponse(GoalBase):
     id: UUID
     user_id: UUID
+    calculated_progress: float = 0.0
+    health: str = "HEALTHY"
     created_at: datetime
     updated_at: datetime
 

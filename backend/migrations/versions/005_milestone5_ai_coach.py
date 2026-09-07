@@ -47,7 +47,7 @@ def upgrade() -> None:
         sa.Column('action_type', sa.String(100), nullable=False),
         sa.Column('target_type', sa.String(50), nullable=False),
         sa.Column('target_id', postgresql.UUID(as_uuid=True), nullable=True),
-        sa.Column('payload', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column('payload', sa.JSON().with_variant(postgresql.JSONB(astext_type=sa.Text()), 'postgresql'), nullable=True),
         sa.Column('status', sa.String(50), nullable=False, server_default='PENDING'),
         sa.Column('requires_confirmation', sa.Boolean(), nullable=False, server_default=sa.text('true')),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),

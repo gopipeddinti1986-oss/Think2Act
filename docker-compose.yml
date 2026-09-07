@@ -19,6 +19,20 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: think2act-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -29,11 +43,15 @@ services:
       - DATABASE_URL=postgresql+asyncpg://think2act:think2act_password@postgres:5432/think2act_db
       - JWT_SECRET=think2act_super_secret_jwt_key_2026_change_in_prod
       - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+      - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
     ports:
       - "8000:8000"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - ./backend:/app
@@ -56,3 +74,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:

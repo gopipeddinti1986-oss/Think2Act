@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from uuid import UUID
 from datetime import date, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -50,9 +50,9 @@ class ProductivityService:
         total_tasks_comp = sum(s.tasks_completed for s in snapshots)
         avg_score = (sum(float(s.score) for s in snapshots) / len(snapshots)) if snapshots else 0.0
 
-        # Calculate estimation accuracy (actual vs estimated minutes across completed tasks)
+        # Real estimation accuracy (actual vs estimated minutes across completed tasks)
         tasks = await self.task_repo.list_by_user(user_id, status="COMPLETED")
-        accuracy = 85.0  # default baseline
+        accuracy = 0.0
         if tasks:
             diffs = []
             for t in tasks:
@@ -62,6 +62,36 @@ class ProductivityService:
             if diffs:
                 accuracy = round((sum(diffs) / len(diffs)) * 100, 1)
 
+        # Real calculation of Peak Focus Time from user's actual focus sessions
+        focus_sessions = await self.focus_repo.list_by_user(user_id, limit=100)
+        if len(focus_sessions) < 3:
+            peak_focus_time = f"Not enough data yet ({len(focus_sessions)}/3 focus sessions)"
+        else:
+            time_buckets: Dict[str, dict] = {
+                "Morning": {"hours": "9 AM - 12 PM", "count": 0, "seconds": 0},
+                "Afternoon": {"hours": "12 PM - 5 PM", "count": 0, "seconds": 0},
+                "Evening": {"hours": "5 PM - 10 PM", "count": 0, "seconds": 0},
+                "Night": {"hours": "10 PM - 6 AM", "count": 0, "seconds": 0},
+            }
+            for fs in focus_sessions:
+                if fs.started_at:
+                    hr = fs.started_at.hour
+                    dur = fs.duration_seconds or 0
+                    if 6 <= hr < 12:
+                        bucket = "Morning"
+                    elif 12 <= hr < 17:
+                        bucket = "Afternoon"
+                    elif 17 <= hr < 22:
+                        bucket = "Evening"
+                    else:
+                        bucket = "Night"
+                    time_buckets[bucket]["count"] += 1
+                    time_buckets[bucket]["seconds"] += dur
+
+            winner_name = max(time_buckets, key=lambda b: (time_buckets[b]["seconds"], time_buckets[b]["count"]))
+            winner_info = time_buckets[winner_name]
+            peak_focus_time = f"{winner_name} ({winner_info['hours']}) - based on {len(focus_sessions)} sessions"
+
         return ProductivityTrendResponse(
             range_days=days,
             average_score=round(avg_score, 1),
@@ -69,6 +99,6 @@ class ProductivityService:
             total_completed_tasks=total_tasks_comp,
             estimation_accuracy=accuracy,
             estimation_accuracy_percentage=accuracy,
-            peak_focus_time="Morning (9 AM - 12 PM)",
+            peak_focus_time=peak_focus_time,
             history=history_points
         )

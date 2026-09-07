@@ -34,10 +34,13 @@ class AIService:
 
     async def chat(self, user_id: UUID, data: ChatRequest) -> ChatResponse:
         # 1. Get or create conversation
+        history: List[Dict[str, str]] = []
         if data.conversation_id:
             conv = await self.ai_repo.get_conversation(data.conversation_id, user_id)
             if not conv:
                 conv = await self.ai_repo.create_conversation(user_id, title=data.message[:30])
+            else:
+                history = [{"role": m.role, "content": m.content} for m in getattr(conv, "messages", [])]
         else:
             conv = await self.ai_repo.create_conversation(user_id, title=data.message[:30])
 
@@ -45,7 +48,7 @@ class AIService:
         await self.ai_repo.add_message(conv.id, role="user", content=data.message)
 
         # 3. Run AI Orchestrator Reasoning
-        result = await self.orchestrator.process_user_message(user_id, data.message)
+        result = await self.orchestrator.process_user_message(user_id, data.message, history=history)
 
         # 4. Record Assistant Message
         assistant_msg = await self.ai_repo.add_message(conv.id, role="assistant", content=result["response_text"])

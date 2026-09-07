@@ -1,7 +1,7 @@
 import bcrypt
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Any
-from jose import jwt
+from typing import Optional, Any, Dict
+from jose import jwt, JWTError
 from app.core.config import settings
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -22,5 +22,30 @@ def create_access_token(subject: str | Any, expires_delta: Optional[timedelta] =
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"exp": expire, "sub": str(subject)}
+    to_encode = {
+        "exp": expire,
+        "sub": str(subject),
+        "type": "access"
+    }
     return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+
+def create_refresh_token(subject: str | Any, expires_delta: Optional[timedelta] = None) -> str:
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode = {
+        "exp": expire,
+        "sub": str(subject),
+        "type": "refresh"
+    }
+    return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+
+def decode_token(token: str, expected_type: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+        if expected_type and payload.get("type") != expected_type:
+            return None
+        return payload
+    except JWTError:
+        return None

@@ -19,7 +19,7 @@ class UserRepository:
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def create(self, name: str, email: str, password_hash: str) -> User:
+    async def create(self, name: str, email: str, password_hash: str, commit: bool = True) -> User:
         user = User(
             name=name.strip(),
             email=email.lower().strip(),
@@ -34,8 +34,12 @@ class UserRepository:
             user_mode="student"
         )
         self.db.add(profile)
-        await self.db.commit()
-        await self.db.refresh(user, ["profile"])
+        if commit:
+            await self.db.commit()
+            await self.db.refresh(user, ["profile"])
+        else:
+            await self.db.flush()
+            await self.db.refresh(user, ["profile"])
         return user
 
     async def update_profile(self, user_id: UUID, **kwargs) -> Optional[UserProfile]:

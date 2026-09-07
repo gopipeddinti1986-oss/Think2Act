@@ -2,6 +2,7 @@ from typing import Optional, List
 from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
+from sqlalchemy.orm import selectinload
 from app.models.goal import Goal
 from app.schemas.goal import GoalCreate, GoalUpdate
 
@@ -10,12 +11,21 @@ class GoalRepository:
         self.db = db
 
     async def get_by_id(self, goal_id: UUID, user_id: UUID) -> Optional[Goal]:
-        stmt = select(Goal).where(Goal.id == goal_id, Goal.user_id == user_id)
+        stmt = (
+            select(Goal)
+            .where(Goal.id == goal_id, Goal.user_id == user_id)
+            .options(selectinload(Goal.tasks))
+        )
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
     async def list_by_user(self, user_id: UUID) -> List[Goal]:
-        stmt = select(Goal).where(Goal.user_id == user_id).order_by(Goal.created_at.desc())
+        stmt = (
+            select(Goal)
+            .where(Goal.user_id == user_id)
+            .options(selectinload(Goal.tasks))
+            .order_by(Goal.created_at.desc())
+        )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 

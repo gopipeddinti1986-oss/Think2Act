@@ -49,7 +49,24 @@ class ChatRequest(BaseModel):
     message: str
     conversation_id: Optional[UUID] = None
 
+from pydantic import BaseModel, ConfigDict, model_validator
+
 class ChatResponse(BaseModel):
     conversation_id: UUID
     message: AIMessageResponse
     proposed_actions: List[AIActionResponse] = []
+    reply: Optional[str] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def set_reply_field(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if not data.get("reply") and "message" in data:
+                msg = data["message"]
+                if hasattr(msg, "content"):
+                    data["reply"] = msg.content
+                elif isinstance(msg, dict) and "content" in msg:
+                    data["reply"] = msg["content"]
+        elif hasattr(data, "message") and not getattr(data, "reply", None):
+            setattr(data, "reply", getattr(data.message, "content", ""))
+        return data

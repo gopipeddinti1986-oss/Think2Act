@@ -42,35 +42,44 @@ class TaskRepository:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def create(self, user_id: UUID, data: TaskCreate) -> Task:
+    async def create(self, user_id: UUID, data: TaskCreate, commit: bool = True) -> Task:
         task = Task(
             user_id=user_id,
             **data.model_dump()
         )
         self.db.add(task)
-        await self.db.commit()
-        await self.db.refresh(task)
+        if commit:
+            await self.db.commit()
+            await self.db.refresh(task)
+        else:
+            await self.db.flush()
         return task
 
-    async def update(self, task_id: UUID, user_id: UUID, data: TaskUpdate) -> Optional[Task]:
+    async def update(self, task_id: UUID, user_id: UUID, data: TaskUpdate, commit: bool = True) -> Optional[Task]:
         task = await self.get_by_id(task_id, user_id)
         if not task:
             return None
         update_data = data.model_dump(exclude_unset=True)
         for key, val in update_data.items():
             setattr(task, key, val)
-        await self.db.commit()
-        await self.db.refresh(task)
+        if commit:
+            await self.db.commit()
+            await self.db.refresh(task)
+        else:
+            await self.db.flush()
         return task
 
-    async def complete(self, task_id: UUID, user_id: UUID) -> Optional[Task]:
+    async def complete(self, task_id: UUID, user_id: UUID, commit: bool = True) -> Optional[Task]:
         task = await self.get_by_id(task_id, user_id)
         if not task:
             return None
         task.status = "COMPLETED"
         task.completed_at = datetime.now(timezone.utc)
-        await self.db.commit()
-        await self.db.refresh(task)
+        if commit:
+            await self.db.commit()
+            await self.db.refresh(task)
+        else:
+            await self.db.flush()
         return task
 
     async def delete(self, task_id: UUID, user_id: UUID) -> bool:

@@ -17,9 +17,15 @@ class AISuggestion(BaseModel):
     action_label: Optional[str] = None
     action_type: Optional[str] = None
 
+class TodayExecution(BaseModel):
+    tasks_completed: int = 0
+    focus_minutes: int = 0
+    schedule_count: int = 0
+
 class DashboardResponse(BaseModel):
     user: AuthUserResponse
     tasks_summary: TasksSummary
+    today_execution: Optional[TodayExecution] = None
     productivity_score: int
     focus_minutes_today: int
     readiness_score: int

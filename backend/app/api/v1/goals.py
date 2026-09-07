@@ -37,6 +37,7 @@ async def get_goal(
     return await service.get_goal(goal_id, current_user.id)
 
 @router.patch("/{goal_id}", response_model=GoalResponse)
+@router.put("/{goal_id}", response_model=GoalResponse)
 async def update_goal(
     goal_id: UUID,
     data: GoalUpdate,

@@ -9,6 +9,7 @@ from app.schemas.dashboard import DashboardResponse
 router = APIRouter()
 
 @router.get("", response_model=DashboardResponse)
+@router.get("/summary", response_model=DashboardResponse)
 async def get_dashboard(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)

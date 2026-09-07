@@ -17,8 +17,7 @@ import { JobsPage } from '@/features/jobs/pages/JobsPage';
 import { ResumePage } from '@/features/resume/pages/ResumePage';
 import { InterviewsPage } from '@/features/interviews/pages/InterviewsPage';
 import { DecisionsPage } from '@/features/decisions/pages/DecisionsPage';
-import { FeaturePlaceholder } from '@/components/common/FeaturePlaceholder';
-import { Settings } from 'lucide-react';
+import { SettingsPage } from '@/features/settings/pages/SettingsPage';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -66,75 +65,20 @@ export const router = createBrowserRouter([
         index: true,
         element: <Navigate to="/dashboard" replace />,
       },
-      {
-        path: 'dashboard',
-        element: <DashboardPage />,
-      },
-      {
-        path: 'goals',
-        element: <GoalsPage />,
-      },
-      {
-        path: 'tasks',
-        element: <TasksPage />,
-      },
-      {
-        path: 'planner',
-        element: <PlannerPage />,
-      },
-      {
-        path: 'focus',
-        element: <FocusPage />,
-      },
-      {
-        path: 'progress',
-        element: <ProgressPage />,
-      },
-      {
-        path: 'skills',
-        element: <SkillsPage />,
-      },
-      {
-        path: 'learning',
-        element: <LearningPage />,
-      },
-      {
-        path: 'ai',
-        element: <AIPage />,
-      },
-      {
-        path: 'jobs',
-        element: <JobsPage />,
-      },
-      {
-        path: 'resume',
-        element: <ResumePage />,
-      },
-      {
-        path: 'interviews',
-        element: <InterviewsPage />,
-      },
-      {
-        path: 'decisions',
-        element: <DecisionsPage />,
-      },
-      {
-        path: 'settings',
-        element: (
-          <FeaturePlaceholder
-            title="Settings & Connected Accounts"
-            milestone="Platform Core"
-            description="Profile configuration, account preferences, and future API integrations."
-            icon={Settings}
-            features={[
-              'Profile details (Student vs. Employee mode, Target role, Timezone)',
-              'Identity & Data Hub (GitHub, LeetCode, LinkedIn connectors)',
-              'Data export & privacy controls',
-              'Notification preferences',
-            ]}
-          />
-        ),
-      },
+      { path: 'dashboard',   element: <DashboardPage /> },
+      { path: 'goals',       element: <GoalsPage /> },
+      { path: 'tasks',       element: <TasksPage /> },
+      { path: 'planner',     element: <PlannerPage /> },
+      { path: 'focus',       element: <FocusPage /> },
+      { path: 'progress',    element: <ProgressPage /> },
+      { path: 'skills',      element: <SkillsPage /> },
+      { path: 'learning',    element: <LearningPage /> },
+      { path: 'ai',          element: <AIPage /> },
+      { path: 'jobs',        element: <JobsPage /> },
+      { path: 'resume',      element: <ResumePage /> },
+      { path: 'interviews',  element: <InterviewsPage /> },
+      { path: 'decisions',   element: <DecisionsPage /> },
+      { path: 'settings',    element: <SettingsPage /> },
     ],
   },
   {

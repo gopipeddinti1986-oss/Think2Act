@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Any
 from app.schemas.task import TaskResponse
 
 class PlannerEntryBase(BaseModel):
@@ -44,3 +44,19 @@ class AutoScheduleResponse(BaseModel):
     total_planned_hours: float
     is_overloaded: bool
     suggestions: List[AutoScheduleSuggestion]
+
+class ScheduleSlotProposal(BaseModel):
+    task_id: Any
+    task_title: str
+    priority: str
+    estimated_minutes: Optional[int] = 30
+    proposed_start_time: Any
+    proposed_end_time: Any
+    reasoning: Optional[str] = None
+
+class PlannerSuggestionResponse(BaseModel):
+    total_suggested_minutes: int
+    slots: List[Any]
+
+class BatchConfirmScheduleRequest(BaseModel):
+    confirmed_slots: List[Any]

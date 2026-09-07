@@ -37,7 +37,8 @@ class EvidenceRepository:
         source_type: str,
         description: str,
         strength: float = 10.0,
-        source_id: Optional[UUID] = None
+        source_id: Optional[UUID] = None,
+        commit: bool = True
     ) -> Evidence:
         evidence = Evidence(
             user_id=user_id,
@@ -48,8 +49,11 @@ class EvidenceRepository:
             description=description
         )
         self.db.add(evidence)
-        await self.db.commit()
-        await self.db.refresh(evidence)
+        if commit:
+            await self.db.commit()
+            await self.db.refresh(evidence)
+        else:
+            await self.db.flush()
         return evidence
 
     async def get_total_strength_and_count(self, user_id: UUID, skill_id: UUID):

@@ -64,7 +64,8 @@ class SkillRepository:
         skill_id: UUID,
         level: float,
         confidence: float,
-        reason: Optional[str] = None
+        reason: Optional[str] = None,
+        commit: bool = True
     ) -> UserSkill:
         user_skill = await self.get_user_skill(user_id, skill_id)
         now = datetime.now(timezone.utc)
@@ -93,7 +94,10 @@ class SkillRepository:
         )
         self.db.add(history)
 
-        await self.db.commit()
+        if commit:
+            await self.db.commit()
+        else:
+            await self.db.flush()
         return await self.get_user_skill(user_id, skill_id)
 
     async def get_skill_history(self, user_id: UUID, skill_id: UUID, limit: int = 10) -> List[SkillHistory]:

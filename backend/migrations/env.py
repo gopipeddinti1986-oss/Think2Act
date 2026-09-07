@@ -6,10 +6,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from app.core.config import settings
+import app.models
 from app.models.base import Base
-from app.models.user import User, UserProfile
-from app.models.goal import Goal
-from app.models.task import Task
 
 config = context.config
 
@@ -17,7 +15,9 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+current_url = config.get_main_option("sqlalchemy.url")
+if not current_url or "postgresql+asyncpg://think2act:think2act_password@localhost:5432" in current_url:
+    config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
@@ -37,8 +37,10 @@ def do_run_migrations(connection: Connection) -> None:
         context.run_migrations()
 
 async def run_async_migrations() -> None:
+    cfg_section = dict(config.get_section(config.config_ini_section, {}))
+    cfg_section["sqlalchemy.url"] = config.get_main_option("sqlalchemy.url")
     connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        cfg_section,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
